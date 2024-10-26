@@ -1,0 +1,135 @@
+# launch terminal
+alt + Return
+    kitty
+
+# launch vscode
+alt + shift + Return
+    code
+
+# launch browser
+alt + shift + space
+    google-chrome
+
+
+
+
+# Cycle through desktops
+alt + Tab
+    rgn-wm-next-desktop
+
+alt + shift + Tab
+    rgn-wm-prev-desktop
+
+super + Tab
+    rgn-wm-next-workspace
+
+super + shift + Tab
+    rgn-wm-prev-workspace
+
+
+super + l
+    rgn love2d-game
+
+# launch terminal
+alt + shift + Return
+    kitty
+    google-chrome-stable
+
+# launch browser
+alt + shift + space
+    google-chrome-stable
+
+# launch program
+alt + p
+    dmenu_run
+
+alt + shift + p
+    rgn-run.sh
+
+# Screenshot of selected region
+Print
+    rgn screenshot region
+
+# Screenshot of active window
+ctrl + Print
+    rgn screenshot window
+
+# Screenshot of active monitor
+alt + Print
+    rgn screenshot monitor
+
+# Screenshot of entire desktop
+super + Print
+    rgn screenshot full
+
+# Screenshot of specific monitors
+alt + {F1,F2,F3}
+    rgn screenshot monitor {1,2,3}
+
+# expand a window by moving one of its side outward
+alt + shift + {h,t,n,s}
+    bspc node -z {left -60 0,bottom 0 60,top 0 -60,right 60 0}
+
+# contract a window by moving one of its side inward
+alt + shift + ctrl + {h,t,n,s}
+    bspc node -z {right -60 0,top 0 60,bottom 0 -60,left 60 0}
+
+# focus another window in direction
+alt + {h,t,n,s}
+    bspc node -f {west,south,north,east}
+
+# move window in direction
+alt + ctrl + {h,t,n,s}
+    bspc node -s {west,south,north,east} --follow
+
+# toggle floating on a window
+super + f
+    bspc node -t ~floating
+
+# quit window manager
+alt + shift + q
+    bspc quit
+
+# close focused window
+alt + shift + c
+    bspc node -c
+
+alt + {_,shift + }{1-9,0}
+    bspc {desktop -f,node -d} '^{1-9,10}'
+
+# preselect the direction
+alt + super + {h,t,n,s}
+    bspc node -p {west,south,north,east}
+
+# Move current window to a pre-selected space
+    alt + shift + m
+    bspc node -n last.!automatic
+
+# Rotate tree
+alt + shift + {apostrophe,period}
+    bspc node @/ -C {forward,backward}
+
+alt + m
+    bspc desktop -l next
+
+## Brightness control
+XF86MonBrightness{Up,Down}
+    rgn-screen-brightness {up,down}
+
+shift + XF86MonBrightness{Up,Down}
+    rgn-screen-brightness {max,min}
+
+# Volume control
+XF86Audio{RaiseVolume,LowerVolume}
+    pactl set-sink-volume @DEFAULT_SINK@ {+5%,-5%}
+
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+shift + XF86AudioRaiseVolume
+    pactl set-sink-volume @DEFAULT_SINK@ 100%
+
+shift + XF86AudioLowerVolume
+    pactl set-sink-volume @DEFAULT_SINK@ 0%
+
+

@@ -1,0 +1,156 @@
+#!/bin/bash
+
+LEFT_MONITOR="DP-1"
+RIGHT_MONITOR="HDMI-2"
+LOWER_MONITOR="eDP-1"
+
+LEFT_MONITOR_GEOMETRY="2560x1440+0+0"
+RIGHT_MONITOR_GEOMETRY="2560x1440+2560+0"
+LOWER_MONITOR_GEOMETRY="1920x1080+1600+1440"
+
+#LEFT_MONITOR_GEOMETRY="1440x2560+0+0"
+#RIGHT_MONITOR_GEOMETRY="2560x1440+1440+40"
+#LOWER_MONITOR_GEOMETRY="1920x1080+1440+1480"
+
+INGRESS_DIR="$HOME/ingress"
+SCREENSHOTS_DIR="$INGRESS_DIR/screenshots"
+
+function tidy {
+    mkdir -p "$HOME/ingress"
+    mkdir -p "$HOME/code"
+}
+
+function timestamp-id {
+    date '+%Y%m%d%H%M%S%4N'
+}
+
+function morning {
+    redshift -x >/dev/null 2>&1
+}
+
+function evening {
+    redshift -x >/dev/null 2>&1
+    redshift -O 4000k >/dev/null 2>&1
+    redshift -O 4000k >/dev/null 2>&1
+}
+
+function screenshot {
+    mkdir -p "$SCREENSHOTS_DIR"
+    local SCREENSHOT_PATH="$SCREENSHOTS_DIR/$(timestamp-id).png"
+
+    # Check for arguments
+    case "$1" in
+        "region")
+            maim -s "$SCREENSHOT_PATH"
+            ;;
+        "window")
+            maim -i "$(xdotool getactivewindow)" "$SCREENSHOT_PATH"
+            ;;
+        "monitor")
+            case "$2" in
+                "1")
+                    maim -g "$LEFT_MONITOR_GEOMETRY" "$SCREENSHOT_PATH"
+                    ;;
+                "2")
+                    maim -g "$RIGHT_MONITOR_GEOMETRY" "$SCREENSHOT_PATH"
+                    ;;
+                "3")
+                    maim -g "$LOWER_MONITOR_GEOMETRY" "$SCREENSHOT_PATH"
+                    ;;
+                *)
+                    echo "Error: Invalid monitor number. Use 1, 2, or 3."
+                    exit 1
+                    ;;
+            esac
+            ;;
+        "full")
+            maim "$SCREENSHOT_PATH"
+            ;;
+        *)
+            echo "Usage: $0 [region|window|monitor <1|2|3>|full]"
+            exit 1
+            ;;
+    esac
+
+    if [ -f "$SCREENSHOT_PATH" ]; then
+        notify-send --icon="$SCREENSHOT_PATH" "Captured screenshot $SCREENSHOT_PATH"
+    else
+        notify-send "Error: Failed to capture screenshot."
+        exit 1
+    fi
+}
+
+
+function dashboard {
+    echo "Hello world"
+}
+
+function config-bspwm {
+    bspc config border_width 4
+    bspc config window_gap 0
+    bspc config normal_border_color "#CC0000"
+    bspc config focused_border_color "#00CC00"
+
+    bspc config split_ratio 0.52
+    bspc config borderless_monocle true
+    bspc config gapless_monocle true
+    bspc config focus_follows_pointer true
+    bspc config pointer_follows_focus true
+    bspc config pointer_follows_monitor true
+    bspc config pointer_modifier mod1
+
+    bspc monitor "$LEFT_MONITOR" -d 1
+    bspc monitor "$RIGHT_MONITOR" -d 2
+    bspc monitor "$LOWER_MONITOR" -d 3 4 5 6 7 8 9 0
+
+    bspc rule -a Peek state=floating
+}
+
+function config-monitors {
+    # +---------------------------+ +---------------------------+
+    # |                           | |                           |
+    # |1440px                     | |1440px                     |
+    # |                           | |                           |
+    # |          2560px      960px| |          2560px           |
+    # +---------------------------+ +-------------+-------------+
+    #                       |    1920px   |
+    #                       |1080px       |
+    #                       |             |
+    #                       +-------------+
+
+    xrandr \
+        --output "$LEFT_MONITOR" --primary --mode 2560x1440 --pos 0x0 --rotate normal \
+        --output "$RIGHT_MONITOR" --mode 2560x1440 --pos 2560x0 --rotate normal \
+        --output "$LOWER_MONITOR" --mode 1920x1080 --pos 1600x1440 --rotate normal
+}
+
+
+function config-x11 {
+    xmodmap ~/.Xmodmap
+    xset r rate 210 42
+
+    xinput set-prop "Elan Touchpad" "libinput Tapping Enabled" 1
+    xinput set-prop "Elan Touchpad" "libinput Accel Speed" 0.4
+
+}
+
+function config {
+    config-bspwm
+    config-x11
+    config-monitors
+}
+
+
+function set-wallpaper {
+    feh --bg-fill "$1"
+}
+
+
+if [ $# -eq 0 ]; then
+    dashboard
+else
+    bash_function="$1"
+    shift
+
+    "$bash_function" "$@"
+fi

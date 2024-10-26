@@ -1,0 +1,7 @@
+[user]
+	email = danielfactorial@gmail.com
+	name = Daniel Factorial
+[core]
+	editor = code
+[init]
+	defaultBranch = main
